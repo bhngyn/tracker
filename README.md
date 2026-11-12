@@ -98,6 +98,7 @@ people who need them.
 
 ## More detail
 
+- `docs/tracker-guide.pdf`: a five-page illustrated guide to the kit, Apify setup and working with Claude
 - `docs/SETUP.md`: step-by-step setup, for a person or an agent
 - `docs/GUIDE.md`: how the kit works, what a project is, what you end up with
 - `CLAUDE.md`: the rules Claude follows when operating the kit

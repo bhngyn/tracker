@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tracker: a guide to collecting social media with Claude and Apify</title>
+<style>
+  @page {
+    size: Letter;
+    margin: 0.6in 0.8in 0.7in 0.8in;
+    @bottom-left { content: "Tracker guide"; font: 8pt "Helvetica Neue", Helvetica, Arial, sans-serif; color: #8a8f98; }
+    @bottom-right { content: counter(page) " / 5"; font: 8pt "Helvetica Neue", Helvetica, Arial, sans-serif; color: #8a8f98; }
+  }
+  @page :first { @bottom-left { content: none; } @bottom-right { content: none; } }
+
+  :root { --ink: #1b1f24; --muted: #5b6370; --line: #dfe3e8; --soft: #f4f6f8; --accent: #0f5c63; --accent-soft: #e4f1f1; --warn: #8a4b00; --warn-soft: #fdf3e3; }
+  * { box-sizing: border-box; }
+  html { font: 10pt/1.48 "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--ink); }
+  body { margin: 0; }
+  section { break-after: page; }
+  section:last-child { break-after: auto; }
+
+  h1 { font-size: 27pt; line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 10pt; font-weight: 700; }
+  h2 { font-size: 18pt; line-height: 1.2; letter-spacing: -0.01em; margin: 0 0 4pt; font-weight: 700; }
+  h3 { font-size: 10pt; margin: 11pt 0 4pt; font-weight: 700; }
+  p { margin: 0 0 7pt; }
+  .eyebrow { font-size: 8pt; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 6pt; }
+  .lede { font-size: 11.5pt; line-height: 1.42; color: var(--muted); margin-bottom: 8pt; }
+  .sub { color: var(--muted); margin-bottom: 9pt; }
+  a { color: var(--accent); text-decoration: none; }
+  code, .mono { font-family: Menlo, "SF Mono", Consolas, monospace; font-size: 8.6pt; }
+  code { background: var(--soft); padding: 1pt 3.5pt; border-radius: 3pt; }
+  strong { font-weight: 700; }
+
+  table { width: 100%; border-collapse: collapse; margin: 3pt 0 6pt; font-size: 9pt; }
+  th { text-align: left; font-size: 7.8pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 700; padding: 0 8pt 5pt 0; border-bottom: 1.2pt solid var(--ink); }
+  td { padding: 4.5pt 8pt 4.5pt 0; border-bottom: 0.6pt solid var(--line); vertical-align: top; }
+  td:last-child, th:last-child { padding-right: 0; }
+  td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  th.num { text-align: right; }
+
+  .cmd { background: #16242b; color: #e8eef0; border-radius: 5pt; padding: 6pt 10pt; margin: 4pt 0 6pt; font-family: Menlo, "SF Mono", Consolas, monospace; font-size: 8.2pt; line-height: 1.5; white-space: pre-wrap; }
+  .cmd .dim { color: #8fa3ab; }
+  .say { border-left: 3pt solid var(--accent); background: var(--accent-soft); padding: 6pt 11pt; margin: 4pt 0 6pt; border-radius: 0 5pt 5pt 0; font-size: 9.4pt; }
+  .note { background: var(--warn-soft); border-radius: 5pt; padding: 7pt 11pt; margin: 7pt 0; font-size: 9pt; color: #3d2a08; }
+  .note strong { color: var(--warn); }
+
+  .steps { list-style: none; margin: 0; padding: 0; counter-reset: step; }
+  .steps > li { counter-increment: step; position: relative; padding: 0 0 6pt 28pt; }
+  .steps > li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 19pt; height: 19pt; border-radius: 50%; background: var(--accent); color: #fff; font-size: 9pt; font-weight: 700; text-align: center; line-height: 19pt; }
+  .steps > li > strong:first-child { display: block; margin-bottom: 1pt; }
+  .steps p { margin-bottom: 4pt; }
+
+  ul.plain { margin: 0 0 8pt; padding-left: 13pt; }
+  ul.plain li { margin-bottom: 3pt; }
+
+  .cols { display: flex; gap: 20pt; }
+  .cols > div { flex: 1; }
+  .card { border: 0.8pt solid var(--line); border-radius: 6pt; padding: 8pt 11pt; font-size: 9pt; }
+  .card h3 { margin-top: 0; }
+  .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+
+  /* cover */
+  .cover-top { border-top: 4pt solid var(--accent); padding-top: 16pt; }
+  .flow { display: flex; align-items: stretch; margin: 10pt 0 6pt; }
+  .flow .box { flex: 1; border: 0.8pt solid var(--line); border-radius: 6pt; padding: 9pt 9pt 8pt; background: #fff; }
+  .flow .box.key { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .flow .box b { display: block; font-size: 10pt; margin-bottom: 2pt; }
+  .flow .box span { font-size: 8.3pt; line-height: 1.35; display: block; color: var(--muted); }
+  .flow .box.key span { color: #d3e8e9; }
+  .flow .arrow { flex: 0 0 18pt; text-align: center; align-self: center; color: var(--muted); font-size: 12pt; }
+  .three { display: flex; gap: 12pt; margin-top: 6pt; }
+  .three > div { flex: 1; background: var(--soft); border-radius: 6pt; padding: 10pt 12pt; font-size: 9.3pt; }
+  .three b { display: block; font-size: 10pt; margin-bottom: 2pt; color: var(--accent); }
+  .meta { margin-top: 11pt; font-size: 8.6pt; color: var(--muted); border-top: 0.6pt solid var(--line); padding-top: 8pt; }
+
+  .chat { margin: 6pt 0 8pt; }
+  .chat div { padding: 5pt 10pt; border-radius: 6pt; margin-bottom: 4pt; font-size: 9pt; }
+  .chat .you { background: var(--soft); margin-right: 50pt; }
+  .chat .claude { background: var(--accent-soft); margin-left: 50pt; }
+  .chat b { font-size: 7.6pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 1pt; }
+</style>
+</head>
+<body>
+
+<!-- ───────────── 1 ───────────── -->
+<section>
+  <div class="cover-top">
+    <div class="eyebrow">Tracker · User guide</div>
+    <h1>Collecting social media<br>with Claude and Apify</h1>
+    <p class="lede">Tracker is a kit for collecting public posts from Instagram, Facebook, X, YouTube and other platforms. You tell Claude what you want collected. Claude sets it up, shows you the cost, and runs it once you approve.</p>
+  </div>
+
+  <h3>How the pieces fit</h3>
+  <div class="flow">
+    <div class="box"><b>You</b><span>Say which accounts, how far back, and your spending limit.</span></div>
+    <div class="arrow">→</div>
+    <div class="box key"><b>Claude Code</b><span>Reads the kit's rules, prepares the project, asks before spending.</span></div>
+    <div class="arrow">→</div>
+    <div class="box"><b>Tracker scripts</b><span>Start each scrape with a hard dollar cap and record it.</span></div>
+    <div class="arrow">→</div>
+    <div class="box"><b>Apify</b><span>Runs the scraper on its servers and bills your account.</span></div>
+    <div class="arrow">→</div>
+    <div class="box"><b>Your folder</b><span>Results are saved on your computer or drive, nowhere else.</span></div>
+  </div>
+
+  <h3>What you can collect</h3>
+  <table>
+    <tr><th style="width:17%">Platform</th><th>What you get</th><th class="num" style="width:22%">Rough cost</th></tr>
+    <tr><td>Instagram</td><td>Posts with captions, dates and engagement; photos and videos with the full install</td><td class="num">$2.30 per 1,000 posts</td></tr>
+    <tr><td>Facebook pages</td><td>Posts with text, dates and engagement; photos and videos with the full install</td><td class="num">$4–5 per 1,000 posts</td></tr>
+    <tr><td>X / Twitter</td><td>The full text history of an account, month by month</td><td class="num">$0.22 per 1,000 posts</td></tr>
+    <tr><td>YouTube</td><td>Videos, captions and descriptions (full install; does not use Apify)</td><td class="num">Free</td></tr>
+    <tr><td>TikTok and others</td><td>The raw results of any Apify scraper, with the same spend cap</td><td class="num">Varies</td></tr>
+  </table>
+
+  <h3>Three things the kit does for you</h3>
+  <div class="three">
+    <div><b>Caps the spend</b>Every scrape has a hard dollar limit, and a project has a total budget that no set of scrapes can exceed.</div>
+    <div><b>Never pays twice</b>Each scrape is recorded when it starts. After a crash, the same command picks it up again.</div>
+    <div><b>Keeps the originals</b>Raw results are saved unmodified, with a record of when they were collected and what they cost.</div>
+  </div>
+
+  <div class="meta">
+    <strong>You need:</strong> a computer with Python 3.11 or newer and git, Claude Code, and your own Apify account. &nbsp;·&nbsp; <strong>The kit:</strong> <a href="https://github.com/bhngyn/tracker" style="white-space:nowrap">github.com/bhngyn/tracker</a><br>
+    Prices are approximate and set by the scraper authors. Check the scraper's page on apify.com for the current price.
+  </div>
+</section>
+
+<!-- ───────────── 2 ───────────── -->
+<section>
+  <div class="eyebrow">Part 1</div>
+  <h2>Set up your Apify account</h2>
+  <p class="sub">Apify runs the scrapers and bills you for them. Each person uses their own account, so spending and results stay separate. This takes about five minutes.</p>
+
+  <ol class="steps">
+    <li><strong>Create an account</strong>
+      <p>Go to <a href="https://console.apify.com/sign-up">console.apify.com/sign-up</a> and sign up with an email address, Google or GitHub. No card is needed for the free plan.</p>
+    </li>
+    <li><strong>Choose a plan</strong>
+      <p>The free plan includes a small monthly credit (about $5 at the time of writing). That covers setup and a test of a few hundred posts. For a real project, upgrade to a paid plan under <strong>Billing</strong> in the console. Paid plans also lower the price per post on some scrapers.</p>
+    </li>
+    <li><strong>Set a monthly spending limit</strong>
+      <p>In the console's billing settings, set the maximum you are willing to spend in a month. Apify stops all scraping when it is reached. Tracker has its own caps, and this is the backstop behind them.</p>
+    </li>
+    <li><strong>Copy your API token</strong>
+      <p>Open <strong>Settings → API &amp; Integrations</strong> (<a href="https://console.apify.com/settings/integrations">console.apify.com/settings/integrations</a>). Under <strong>Personal API tokens</strong>, copy the default token, or create a new one and name it <code>tracker</code> so you can revoke it on its own later.</p>
+      <p>The token is a long string that starts with <code>apify_api_</code>. Keep it on your clipboard for Part 2.</p>
+    </li>
+  </ol>
+
+  <div class="note"><strong>Treat the token like a password.</strong> Anyone who has it can spend your Apify credit. Paste it only into the <code>.env</code> file described in Part 2. Don't paste it into a chat with Claude, an email or a shared document. If it is ever exposed, delete it on the same console page and create a new one: the old token stops working at once.</div>
+
+  <h3>How Apify charges</h3>
+  <div class="cols">
+    <div>
+      <p>A scraper on Apify is called an <strong>actor</strong>. Most of the actors Tracker uses charge per result, so the cost of a job is roughly the number of posts times the price per post.</p>
+      <p>Three limits apply at the same time, and the lowest one wins.</p>
+    </div>
+    <div>
+      <table>
+        <tr><th>Limit</th><th>Set where</th></tr>
+        <tr><td>Cap on one scrape</td><td>In the command Claude runs</td></tr>
+        <tr><td>Project budget</td><td>The project's config file</td></tr>
+        <tr><td>Monthly account limit</td><td>The Apify console</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── 3 ───────────── -->
+<section>
+  <div class="eyebrow">Part 2</div>
+  <h2>Install Tracker and add your token</h2>
+  <p class="sub">The quickest route is to let Claude do it. The manual route is the same four steps.</p>
+
+  <h3>With Claude</h3>
+  <p>Open Claude Code in the folder where you want the kit to live, and paste this:</p>
+  <div class="say">Clone https://github.com/bhngyn/tracker, read its CLAUDE.md and docs/SETUP.md, and walk me through setup one step at a time.</div>
+  <p>Claude downloads and installs the kit, then stops and asks you to paste your token into the <code>.env</code> file. When you say it's done, Claude checks the connection and offers a small first scrape.</p>
+
+  <h3>By hand</h3>
+  <ol class="steps">
+    <li><strong>Download and install</strong>
+      <div class="cmd">git clone https://github.com/bhngyn/tracker.git
+cd tracker
+./setup.sh              <span class="dim"># any computer: collect posts</span>
+./setup.sh --full       <span class="dim"># Apple silicon Mac: adds media, transcripts, OCR</span></div>
+      <p>Run one of the two <code>setup.sh</code> lines. Setup creates an empty <code>.env</code> file in the <code>tracker</code> folder.</p>
+    </li>
+    <li><strong>Paste the token into <code>.env</code></strong>
+      <p>The file is hidden in most file browsers because its name starts with a dot. On a Mac, <code>open -e .env</code> opens it in TextEdit. Put the token straight after the equals sign, with no spaces or quotes, then save:</p>
+      <div class="cmd">APIFY_API_TOKEN=apify_api_xxxxxxxxxxxxxxxxxxxxxxxx</div>
+    </li>
+    <li><strong>Check the connection</strong>
+      <p>This is free and starts no scraper.</p>
+      <div class="cmd">archive_pipeline/.venv/bin/python check_apify.py
+
+<span class="dim">token OK   account: yourname   plan: FREE
+this month: $0.00 used of $5.00  ($5.00 left, resets 2026-01-31)</span></div>
+    </li>
+    <li><strong>Choose where your data will live</strong>
+      <p>Pick a folder outside <code>tracker</code>, such as an external drive. Metadata needs very little space. An archive with video can need hundreds of gigabytes.</p>
+    </li>
+  </ol>
+
+  <table>
+    <tr><th style="width:40%">If the check says</th><th>Do this</th></tr>
+    <tr><td><span class="mono">APIFY_API_TOKEN is not set</span></td><td>The <code>.env</code> line is empty or malformed. Repeat step 2.</td></tr>
+    <tr><td><span class="mono">Apify rejected the token (HTTP 401)</span></td><td>Copy the token again. Look for a stray space or quote mark.</td></tr>
+    <tr><td><span class="mono">Could not reach Apify</span></td><td>Check your internet connection or VPN.</td></tr>
+  </table>
+</section>
+
+<!-- ───────────── 4 ───────────── -->
+<section>
+  <div class="eyebrow">Part 3</div>
+  <h2>Working with Claude</h2>
+  <p class="sub">Open Claude Code inside the <code>tracker</code> folder. Claude reads the kit's rules automatically, so you can describe what you want in plain language.</p>
+
+  <h3>Things to ask</h3>
+  <div class="say">Check my Apify setup and tell me how much budget I have left this month.</div>
+  <div class="say">Collect the last 500 Instagram posts from these three accounts: … Keep it under $5 and save everything to <span style="white-space:nowrap">~/research/project-a</span>.</div>
+  <div class="say">Get the full X history of @example_handle since 2020. Estimate the cost first.</div>
+  <p>A good request names <strong>the accounts</strong>, <strong>how many posts or how far back</strong>, <strong>a spending limit</strong> and <strong>where to save</strong>. If you leave one out, Claude asks.</p>
+
+  <h3>What a session looks like</h3>
+  <div class="chat">
+    <div class="you"><b>You</b>Collect the last 200 posts from @example_account on Instagram.</div>
+    <div class="claude"><b>Claude</b>That is about 200 posts at roughly $0.0023 each, so around $0.46. I'd cap the run at $1. You have $17 left this month. Where should I save it, and shall I go ahead?</div>
+    <div class="you"><b>You</b>Yes. Save it to ~/research/example.</div>
+    <div class="claude"><b>Claude</b>Done. 200 posts saved, dated 3 March to 12 November, for $0.44. Nothing failed. The file is in <span style="white-space:nowrap">~/research/example/data/raw</span>.</div>
+  </div>
+
+  <div class="cols">
+    <div class="card">
+      <h3>Claude will always</h3>
+      <ul class="plain">
+        <li>Tell you the target, the estimated cost and the cap, and wait for your yes before any paid scrape</li>
+        <li>Run scrapes only through the kit's capped scripts</li>
+        <li>Keep projects and data outside the <code>tracker</code> folder</li>
+        <li>Report what was collected, what it cost, and anything cut short</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Claude will not</h3>
+      <ul class="plain">
+        <li>Ask for your token, read it back or print it</li>
+        <li>Raise a budget or restart a paid scrape without asking</li>
+        <li>Try to get past logins, private accounts or blocks</li>
+        <li>Treat a partial result as complete</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note"><strong>Your approval covers one scrape.</strong> Claude asks again for the next one. These rules live in the kit's <code>CLAUDE.md</code> file. They guide Claude; the hard limits are the caps in the scripts and your monthly limit on Apify.</div>
+</section>
+
+<!-- ───────────── 5 ───────────── -->
+<section>
+  <div class="eyebrow">Part 4</div>
+  <h2>Projects, results and good practice</h2>
+  <p class="sub">What Claude creates for you, what you end up with, and what to keep in mind.</p>
+
+  <div class="cols">
+    <div>
+      <h3 style="margin-top:0">A project</h3>
+      <p>Each piece of research is a <strong>project</strong>: a small folder with one settings file, plus a data folder. Claude creates both.</p>
+      <div class="cmd">~/research/example/
+  project.toml     <span class="dim">accounts, budgets</span>
+  watchlist.json   <span class="dim">optional: names to flag</span>
+
+/Volumes/Drive/example_archive/
+  raw/             <span class="dim">results + run records</span>
+  instagram/ …     <span class="dim">media (full install)</span>
+  OPEN ME.html     <span class="dim">review kit (full install)</span></div>
+      <p>Spending is approved in <code>project.toml</code>: scrapes are refused until <code>enabled = true</code>, and stop at <code>total_budget_usd</code>.</p>
+    </div>
+    <div>
+      <h3 style="margin-top:0">Two ways to run</h3>
+      <table>
+        <tr><th style="width:36%">Mode</th><th>You get</th></tr>
+        <tr><td><strong>Collect only</strong><br><span style="white-space:nowrap">any computer</span></td><td>Post text, dates, engagement and links, as JSON files</td></tr>
+        <tr><td><strong>Full pipeline</strong><br><span style="white-space:nowrap">Apple silicon Mac</span></td><td>The above, plus photos and videos, speech transcripts, on-screen text, watchlist hits, spreadsheets, and an offline review kit that opens in a browser</td></tr>
+      </table>
+      <p>The full pipeline can run for hours or days on a large archive. It is safe to stop and restart: finished work is skipped.</p>
+    </div>
+  </div>
+
+  <h3>Worth knowing</h3>
+  <ul class="plain">
+    <li><strong>Results are a snapshot.</strong> Scrapers return what is public at that moment. Deleted and private posts are absent, and long histories can come back incomplete. Compare the count with the profile.</li>
+    <li><strong>A scrape that hits its cap stops with what it has.</strong> That is a partial result. Claude tells you when it happens.</li>
+    <li><strong>Media links expire.</strong> To keep photos and videos, run the full pipeline soon after collecting.</li>
+    <li><strong>Re-running a finished scrape does nothing</strong> and costs nothing. To collect more, ask Claude for a new dataset.</li>
+  </ul>
+
+  <div class="cols">
+    <div class="card">
+      <h3>Keep it private</h3>
+      <ul class="plain">
+        <li>The <code>tracker</code> repository is public. Never put project settings, watchlists, results or your <code>.env</code> in it.</li>
+        <li>Posts contain personal data. Store them securely and share them only with people who need them.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Use it responsibly</h3>
+      <ul class="plain">
+        <li>Collect public content only, and only what your work needs.</li>
+        <li>You are responsible for following the platforms' terms, Apify's terms, and the privacy law that applies to you.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="meta">
+    <strong>Read more in the kit:</strong> <code>docs/SETUP.md</code> full setup walkthrough &nbsp;·&nbsp; <code>docs/GUIDE.md</code> how the kit works &nbsp;·&nbsp; <code>CLAUDE.md</code> Claude's rules &nbsp;·&nbsp; <code>archive_pipeline/README.md</code> the full pipeline
+  </div>
+</section>
+
+</body>
+</html>
