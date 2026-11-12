@@ -47,6 +47,7 @@ def main():
     name, actor, max_usd, inp = sys.argv[1], sys.argv[2], float(sys.argv[3]), json.loads(sys.argv[4])
     tok = token()
     c = httpx.Client(timeout=120)
+    (ROOT / "raw").mkdir(parents=True, exist_ok=True)  # run_all.sh makes it; a standalone run must too
     out = ROOT / "raw" / f"{name}.json"
     run_f = ROOT / "raw" / f"{name}.run.json"
     run = json.loads(run_f.read_text()) if run_f.exists() else None
