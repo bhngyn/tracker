@@ -1,0 +1,78 @@
+# Example project config for the archive pipeline. Copy it OUTSIDE the repository
+# (e.g. with `new_project.py`) and fill it in. Project configs name research targets,
+# so they must never be committed. Relative paths resolve against this file's folder.
+
+[project]
+name = "Example Organisation"                 # shown in the viewer, monitor and METHODOLOGY.md
+slug = "example"                              # short id: package names, browser-storage keys
+archive_root = "/Volumes/Drive/example_archive"
+# packages_dir = "/Volumes/Drive/example_packages"   # default: <archive_root>/../<slug>_packages
+
+[apify]                                       # Instagram + Facebook metadata (paid)
+enabled = false                               # true = the spend below is approved
+# env_file = "/path/to/.env"                  # holds APIFY_API_TOKEN (or export it)
+total_budget_usd = 0.0                        # hard ceiling across all runs of this project
+untracked_spend_usd = 0.0                     # spend made outside the pipeline (tests, probes)
+
+[youtube]
+tabs = [                                      # worker A walks these in order, worker B in reverse
+  "https://www.youtube.com/@example/videos",
+  "https://www.youtube.com/@example/shorts",
+  "https://www.youtube.com/@example/streams",
+]
+sub_langs = "en.*,-live_chat"                 # yt-dlp --sub-langs
+caption_langs = ["en"]                        # caption tracks that count as a transcript
+max_res = 720                                 # caps the shorter side (vertical video stays sharp)
+# expected_videos = 0                         # monitor fallback until yt-dlp reports tab sizes
+
+[instagram]
+accounts = []                                 # usernames, without @
+dataset = "instagram"                         # raw/<dataset>.json
+results_limit = 5000                          # per account
+budget_usd = 0.0                              # cap for this run (≈ $0.0023/post, detailed)
+# profile_posts = { example = 1234 }          # counts the profiles showed, for the coverage note
+# profile_posts_date = "2026-01-01"
+
+# One block per Facebook page. The first run is raw/<dataset>.json; when Apify's monthly limit
+# stops it early, history_continue.py continues as <dataset>2, 3, ... after the reset.
+# [[facebook.pages]]
+# url = "https://www.facebook.com/example/"
+# dataset = "facebook_history"
+# older_than = ""                             # YYYY-MM-DD: skip newer posts collected elsewhere
+# budget_usd = 0.0                            # ≈ $0.004/post (+$0.001 with older_than)
+
+[transcribe]
+model = "mlx-community/whisper-large-v3-turbo"
+youtube = "missing"                           # missing | all | none — FB/IG videos are always done
+temperatures = [0.0, 0.4, 0.8]                # decode retries when a window looks garbled; each rung is a full re-decode
+max_rss_gb = 5.0                              # worker restarts itself above this (model + audio is ~2.3 GB)
+
+[ocr]
+languages = ["en-US"]                         # Apple Vision codes, e.g. "fr-FR", "es-ES", "ar-SA"
+interval_s = 5.0                              # at most one keyframe per N seconds
+workers = 1                                   # parallel OCR processes (each ≈ 1 core)
+max_rss_gb = 1.5                              # each worker restarts itself above this (normal is well under 0.5 GB)
+
+[processing]
+mem_hold_pct = 5                              # transcription + OCR hold while macOS reports < this % memory free…
+mem_resume_pct = 10                           # …and resume at this; keep both below the healthy full-load level
+
+[watchlist]                                   # names to flag (places, organisations, people…)
+path = ""                                     # JSON list — see README "Watchlist format"; "" = off
+label = "Places"                              # viewer tab name
+native_prefixes = ""                          # letters that can attach to the front of a native-script name
+native_letters = ""                           # regex letter range of that script, e.g. "؀-ۿ"
+
+[viewer]
+# title = "Example Organisation archive"      # default: project name
+search_placeholder = "Search everything — names, places, phrases"
+
+[methodology]                                 # wording for METHODOLOGY.md
+purpose = """
+Why this archive exists and what reviewers are looking for. A match in the index is a pointer
+for a human reviewer to check against the original media, **not** a finding.
+"""
+watchlist_description = """
+Where the watchlist comes from and how it was curated.
+"""
+extra_limitations = []                        # extra bullet points for "Known gaps and limitations"

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Archive</title>
+<link rel="stylesheet" href="viewer/app.css">
+</head>
+<body>
+<header>
+  <div class="brand"><span id="title">Archive</span> <span id="meta" class="muted"></span></div>
+  <nav>
+    <button data-tab="search" class="on">Search</button>
+    <button data-tab="places" id="places-tab">Places</button>
+    <button data-tab="tags">My review <span id="tagcount" class="pill">0</span></button>
+    <button data-tab="about">About</button>
+  </nav>
+</header>
+
+<main>
+  <section id="tab-search" class="tab on">
+    <form id="qform" class="bar">
+      <input id="q" type="search" placeholder="Search everything" autocomplete="off" autofocus>
+      <button type="submit">Search</button>
+    </form>
+    <div class="filters">
+      <label>Platform <select id="f-platform"><option value="">All</option><option>youtube</option><option>facebook</option><option>instagram</option></select></label>
+      <label>Account <select id="f-account"><option value="">All</option></select></label>
+      <label>From <input id="f-from" type="date"></label>
+      <label>To <input id="f-to" type="date"></label>
+      <span class="fields" id="f-fields"></span>
+      <label title="Also match known spellings of watchlist names and near spellings of other words. &quot;Quoted&quot; phrases stay exact."><input id="f-fuzzy" type="checkbox" checked> spelling variants &amp; near matches</label>
+      <label><input id="f-hits" type="checkbox"> only items with watchlist hits</label>
+    </div>
+    <div id="status" class="muted"></div>
+    <div id="results"></div>
+  </section>
+
+  <section id="tab-places" class="tab">
+    <div class="filters">
+      <label>Category <select id="p-cat"><option value="">All</option></select></label>
+      <label><input id="p-weak" type="checkbox"> include ambiguous matches</label>
+      <label>Filter <input id="p-q" type="search" placeholder="name"></label>
+    </div>
+    <div class="split">
+      <table id="places"><thead><tr><th class="wl-singular">Place</th><th>Category</th><th>Region</th><th class="n">Items</th><th class="n">Mentions</th></tr></thead><tbody></tbody></table>
+      <div id="placehits"><p class="muted">Pick a place to see every mention, strongest evidence first.</p></div>
+    </div>
+  </section>
+
+  <section id="tab-tags" class="tab">
+    <div class="filters">
+      <label>Reviewer <input id="reviewer" placeholder="your name"></label>
+      <button id="export-tags">Export CSV</button>
+      <label class="btn">Import CSV <input id="import-tags" type="file" accept=".csv" hidden></label>
+      <label>Show <select id="t-filter"><option value="">All tagged</option><option>relevant</option><option>needs review</option><option>not relevant</option></select></label>
+    </div>
+    <div id="taglist"></div>
+  </section>
+
+  <section id="tab-about" class="tab prose">
+    <h2>How to use</h2>
+    <ul>
+      <li><b>Search</b> looks through post text, video titles and descriptions, YouTube captions, speech transcribed
+        by Whisper, text read off video frames and photos (OCR), platform image descriptions, Instagram location
+        tags and comments. Several words must all appear in the same passage. Accents, case and vowel marks are ignored.
+        With <b>spelling variants &amp; near matches</b> on (the default), a watchlist name also finds all its recorded
+        spellings (and native-script forms), and other words of four or more letters also find near spellings in the
+        archive: transliteration swaps such as kh/ch/h or tz/ts/z, doubled letters, and small typos. The line under the
+        search box shows every extra spelling used. Put a phrase in "quotes" to match it exactly.</li>
+      <li><b class="wl-label">Places</b> lists every entry in the project's watchlist with how many items mention it.
+        Names that are also common words or first names are <i>ambiguous</i>: hidden unless you tick the box, and
+        always ranked below clear matches.</li>
+      <li>Click any result to open the item. Click a timestamp to jump the video there.</li>
+      <li>Tag items <i>relevant / needs review / not relevant</i> with a note. Tags are saved in this browser only.
+        Use <b>My review → Export CSV</b> to share them; <b>Import CSV</b> merges a colleague's file.</li>
+    </ul>
+    <h2>What the fields mean</h2>
+    <dl id="fielddefs"></dl>
+    <p class="muted">Machine transcripts and OCR contain errors. Always confirm against the video or photo before relying on a hit.
+      See METHODOLOGY.md for sources, dates, tools and known gaps.</p>
+  </section>
+</main>
+
+<div id="item" class="drawer" hidden>
+  <div class="drawer-inner">
+    <button class="close" id="close-item" aria-label="Close">×</button>
+    <div id="item-body"></div>
+  </div>
+</div>
+
+<script src="viewer/data/meta.js"></script>
+<script src="viewer/data/items.js"></script>
+<script src="viewer/data/places.js"></script>
+<script src="viewer/data/hits.js"></script>
+<script src="viewer/data/search.js"></script>
+<script src="viewer/config.js" onerror="void 0"></script>
+<script src="viewer/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+# local virtualenv (may be a symlink to an existing venv) and caches
+.venv
+__pycache__/

@@ -1,0 +1,17 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# scraped data and project folders never belong in this repository
+x_backfill/data/
+projects/
+*.run.json
+project.toml
+watchlist.json
+
+# local environment
+.venv/
+__pycache__/
+.DS_Store
+.claude/settings.local.json

@@ -1,0 +1,11 @@
+# Archive pipeline (macOS / Apple silicon: mlx-whisper and Apple Vision OCR need it).
+# Install:  python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+# Also needed on PATH: ffmpeg/ffprobe (brew install ffmpeg).
+yt-dlp==2026.8.19
+yt-dlp-ejs==0.8.0
+httpx==0.28.1
+mlx==0.32.2
+mlx-whisper==0.4.3
+ocrmac==1.0.1
+pillow==12.3.0
+numpy==2.5.3
