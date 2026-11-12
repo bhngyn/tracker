@@ -16,9 +16,21 @@ On a Mac with Apple silicon, `archive_pipeline/` can also transcribe speech, rea
 text, flag a watchlist of names, and package everything as an offline review kit that opens
 in a browser.
 
-## Setup
+## Quick start with Claude
 
-You need Python 3.11 or newer, Claude Code, and your own Apify account.
+Open Claude Code in the folder where you want the kit, and paste this:
+
+> Clone https://github.com/bhngyn/tracker, read its CLAUDE.md and docs/SETUP.md, and walk
+> me through setup one step at a time.
+
+Claude installs the kit, tells you where to get an Apify token and where to paste it, checks
+the connection, and runs a small first scrape with you. If you already have the folder, open
+Claude Code inside it and say "walk me through setup".
+
+## Setup by hand
+
+You need Python 3.11 or newer, Claude Code, and your own Apify account. The steps below are
+the short version; `docs/SETUP.md` has the full walkthrough with expected output and fixes.
 
 **1. Get the kit and install it.**
 
@@ -86,6 +98,9 @@ people who need them.
 
 ## More detail
 
+- `docs/SETUP.md`: step-by-step setup, for a person or an agent
+- `docs/GUIDE.md`: how the kit works, what a project is, what you end up with
+- `CLAUDE.md`: the rules Claude follows when operating the kit
 - `archive_pipeline/README.md`: the pipeline's stages, monitoring, output layout, watchlist format
 - `x_backfill/README.md`: how the X backfill works and its options
 - `docs/apify-output-schemas.md`: the fields each scraper returns

@@ -28,6 +28,10 @@ plain language.
 
 ## First session with a new user
 
+If the kit isn't set up yet (no `archive_pipeline/.venv`, or `check_apify.py` fails), follow
+`docs/SETUP.md` with the user, one step at a time. It has the expected output and the fix for
+each failure. `docs/GUIDE.md` explains how the tools fit together. In short:
+
 1. Run `./setup.sh` if `archive_pipeline/.venv` is missing (`--full` on a Mac with Apple
    silicon when they want media, transcription or OCR).
 2. If `.env` has no token, ask them to paste one into the file themselves (README, step 2).
